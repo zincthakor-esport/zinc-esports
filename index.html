@@ -39,6 +39,7 @@
         .slot-free { background: rgba(0, 230, 118, 0.1); border: 1px solid rgba(0, 230, 118, 0.3); color: #00e676; }
         .slot-pending { background: rgba(255, 170, 0, 0.15); border: 1px solid rgba(255, 170, 0, 0.5); color: #ffaa00; }
         .slot-booked { background: rgba(255, 42, 95, 0.15); border: 1px solid rgba(255, 42, 95, 0.4); color: #ff2a5f; }
+        .team-box { background: rgba(255, 255, 255, 0.03); border: 1px dashed rgba(255, 255, 255, 0.15); border-radius: 12px; padding: 8px; margin-bottom: 8px; }
         .custom-scrollbar::-webkit-scrollbar { height: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #1f293d; border-radius: 10px; }
     </style>
@@ -151,14 +152,22 @@
                     <button onclick="saveAdminCsSettings()" class="px-5 py-2 bg-red-500 text-white font-bold text-xs rounded-lg hover:bg-red-400 transition">Save CS Settings</button>
                 </div>
 
-                <!-- Add match and status/slot controls -->
+                <!-- Add match with Solo/Duo/Squad support -->
                 <div class="bg-zincdark border border-emerald-500/30 p-4 rounded-xl mb-4">
-                    <h4 class="font-bold text-sm text-emerald-400 mb-3">➕ નવો Match ઉમેરો</h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        <input id="newMatchTitle" placeholder="Match Title" class="bg-zincpanel border border-zincborder p-2.5 rounded-xl text-xs text-white">
-                        <input id="newMatchTime" type="datetime-local" class="bg-zincpanel border border-zincborder p-2.5 rounded-xl text-xs text-white">
-                        <input id="newMatchMap" placeholder="Map Name" value="Bermuda" class="bg-zincpanel border border-zincborder p-2.5 rounded-xl text-xs text-white">
-                        <input id="newMatchSlots" type="number" min="1" max="100" value="48" placeholder="Slots" class="bg-zincpanel border border-zincborder p-2.5 rounded-xl text-xs text-white">
+                    <h4 class="font-bold text-sm text-emerald-400 mb-3">➕ નવો Match ઉમેરો (Solo / Duo / Squad)</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div><label class="block text-[11px] text-gray-400 mb-1 font-bold">Match Title</label><input id="newMatchTitle" placeholder="Match Title" class="w-full bg-zincpanel border border-zincborder p-2.5 rounded-xl text-xs text-white"></div>
+                        <div><label class="block text-[11px] text-gray-400 mb-1 font-bold">Match Date & Time</label><input id="newMatchTime" type="datetime-local" class="w-full bg-zincpanel border border-zincborder p-2.5 rounded-xl text-xs text-white"></div>
+                        <div><label class="block text-[11px] text-gray-400 mb-1 font-bold">Map Name</label><input id="newMatchMap" placeholder="Map Name" value="Bermuda" class="w-full bg-zincpanel border border-zincborder p-2.5 rounded-xl text-xs text-white"></div>
+                        <div>
+                            <label class="block text-[11px] text-yellow-400 mb-1 font-bold">Game Type (Solo / Duo / Squad)</label>
+                            <select id="newMatchType" class="w-full bg-zincpanel border border-zincborder p-2.5 rounded-xl text-xs text-white font-bold">
+                                <option value="solo">Solo (1 Player per slot)</option>
+                                <option value="duo">Duo (2 Players per slot)</option>
+                                <option value="squad">Squad (4 Players per slot)</option>
+                            </select>
+                        </div>
+                        <div><label class="block text-[11px] text-gray-400 mb-1 font-bold">Total Slots Count</label><input id="newMatchSlots" type="number" min="1" max="100" value="48" class="w-full bg-zincpanel border border-zincborder p-2.5 rounded-xl text-xs text-white"></div>
                     </div>
                     <button onclick="addNewMatch()" class="mt-3 px-5 py-2.5 bg-emerald-500 text-black font-bold text-xs rounded-xl">Create Match</button>
                 </div>
@@ -182,7 +191,6 @@
                     <select id="adminMatchSelector" onchange="onAdminMatchSelectChange()" class="w-full bg-zincpanel border border-zincborder p-2.5 rounded-xl text-xs text-white font-bold focus:outline-none focus:border-yellow-500"></select>
                 </div>
                 
-                <button onclick="createNewMatch()" class="w-full mb-4 px-5 py-3 bg-emerald-500 text-black font-extrabold text-sm rounded-xl hover:bg-emerald-400 transition"><i class="fa-solid fa-plus me-2"></i>નવી મેચ બનાવો (Create Match)</button>
                 <button onclick="deleteSelectedMatch()" class="w-full mb-4 px-5 py-3 bg-red-600 text-white font-extrabold text-sm rounded-xl hover:bg-red-500 transition">પસંદ કરેલી મેચ Delete કરો</button>
 
                 <!-- Match Settings Control -->
@@ -295,7 +303,7 @@
         const i18nData = {
             gu: { btn_support: "સપોર્ટ", btn_room: "રૂમ આઈડી", btn_admin: "એડમિન", nav_br: "બેટલ રોયલ મેચ", nav_cs: "CS મોડ (1v1 / 6v6)", lbl_free: "ફ્રી", lbl_pending: "પેન્ડિંગ", lbl_booked: "બુકડ" },
             en: { btn_support: "Support", btn_room: "Room ID", btn_admin: "Admin", nav_br: "Battle Royale Matches", nav_cs: "CS Mode (1v1 / 6v6)", lbl_free: "Free", lbl_pending: "Pending", lbl_booked: "Booked" },
-            hi: { btn_support: "સપોર્ટ", btn_room: "રૂમ આઈડી", btn_admin: "એડમિન", nav_br: "બેટલ રોયલ મેચ", nav_cs: "CS Mode (1v1 / 6v6)", lbl_free: "ફ્રી", lbl_pending: "પ્રોસેસિંગ", lbl_booked: "બુક" }
+            hi: { btn_support: "સપોર્ટ", btn_room: "रूम आईडी", btn_admin: "एडमिन", nav_br: "बैटल रॉयल मैच", nav_cs: "CS Mode (1v1 / 6v6)", lbl_free: "ફ્રી", lbl_pending: "પ્રોસેસિંગ", lbl_booked: "બુક" }
         };
 
         function changeLanguage(lang) {
@@ -329,13 +337,24 @@
         const ADMIN_PIN = "anil779";
 
         let matchesData = JSON.parse(localStorage.getItem('zinc_multimatches')) || {
-            m1: { config: { title: "FREE FIRE SQUAD MATCH #01", time: "08:00 PM", map: "Bermuda", status: "live", slotsCount: 48, entry: "25", perkill: "12", prize: "500", p1: "250", p2: "150", p3: "100" }, room: { id: "", pass: "" }, slots: generate48Slots() },
-            m2: { config: { title: "FREE FIRE SQUAD MATCH #02", time: "09:30 PM", map: "Purgatory", status: "upcoming", slotsCount: 48, entry: "25", perkill: "12", prize: "500", p1: "250", p2: "150", p3: "100" }, room: { id: "", pass: "" }, slots: generate48Slots() }
+            m1: { config: { title: "FREE FIRE SQUAD MATCH #01", time: "08:00 PM", map: "Bermuda", status: "live", gameType: "squad", slotsCount: 48, entry: "25", perkill: "12", prize: "500", p1: "250", p2: "150", p3: "100" }, room: { id: "", pass: "" }, slots: generateBrSlots("squad", 48) },
+            m2: { config: { title: "FREE FIRE DUO MATCH #02", time: "09:30 PM", map: "Purgatory", status: "upcoming", gameType: "duo", slotsCount: 48, entry: "25", perkill: "12", prize: "500", p1: "250", p2: "150", p3: "100" }, room: { id: "", pass: "" }, slots: generateBrSlots("duo", 48) }
         };
 
-        function generate48Slots() {
+        function generateBrSlots(gameType, totalSlots) {
             let res = {};
-            for(let i=1; i<=48; i++) res[`slot_${i}`] = { id: i, status: 'free', player: null };
+            let groupSize = gameType === 'squad' ? 4 : (gameType === 'duo' ? 2 : 1);
+            let teamsCount = Math.ceil(totalSlots / groupSize);
+            for(let t=1; t<=teamsCount; t++) {
+                let teamPlayers = [];
+                for(let p=1; p<=groupSize; p++) {
+                    let sId = (t - 1) * groupSize + p;
+                    if(sId <= totalSlots) {
+                        teamPlayers.push({ id: sId, status: 'free', player: null });
+                    }
+                }
+                res[`team_${t}`] = { teamNum: t, players: teamPlayers };
+            }
             return res;
         }
 
@@ -345,7 +364,9 @@
                 const m = matchesData[key];
                 if (!m.config) m.config = {};
                 if (!m.room) m.room = {id:"", pass:""};
-                if (!m.slots) m.slots = generate48Slots();
+                if (!m.slots || Array.isArray(m.slots) || typeof m.slots !== 'object') {
+                    m.slots = generateBrSlots(m.config.gameType || 'squad', m.config.slotsCount || 48);
+                }
             });
         }
 
@@ -374,6 +395,7 @@
             document.querySelectorAll('.nav-btn').forEach(el => { el.classList.remove('bg-yellow-500', 'text-black'); el.classList.add('bg-zincdark', 'text-gray-300'); });
             document.getElementById(`sec-${tab}`).classList.remove('hidden');
             document.getElementById(`nav-${tab}`)?.classList.add('bg-yellow-500', 'text-black');
+            if(tab === 'admin') { renderAdminSelector(); onAdminMatchSelectChange(); }
             if(tab === 'cs' && typeof window.renderCSSlots === 'function') window.renderCSSlots();
         };
 
@@ -388,23 +410,15 @@
             alert('Match status updated: ' + status.toUpperCase());
         };
 
-        window.createNewMatch = function() {
-            if (!isAdminLoggedIn) { alert('Admin login karo.'); return; }
-            const n = Object.keys(matchesData).reduce((max,k)=>Math.max(max,Number(k.slice(1))||0),0)+1;
-            const key = `m${n}`;
-            matchesData[key] = { config:{ title:`FREE FIRE MATCH #${String(n).padStart(2,'0')}`, time:'08:00 PM', map:'Bermuda', entry:'25', perkill:'12', prize:'500' }, room:{id:'',pass:''}, slots:generate48Slots() };
-            saveAndSyncData();
-            alert('New match created!');
-        };
-
         window.addNewMatch = function() {
             const title = document.getElementById('newMatchTitle').value.trim();
             if(!title){ alert('Match title lakho.'); return; }
             const id = 'm_' + Date.now().toString(36), dt = document.getElementById('newMatchTime').value, map = document.getElementById('newMatchMap').value.trim() || 'Bermuda';
+            const gameType = document.getElementById('newMatchType').value;
             const n = Math.max(1, Math.min(100, parseInt(document.getElementById('newMatchSlots').value) || 48));
-            const slots = {}; for(let i=1; i<=n; i++) slots['slot_'+i] = { id: i, status: 'free', player: null };
+            const slots = generateBrSlots(gameType, n);
             const startAt = dt ? new Date(dt).toISOString() : '';
-            matchesData[id] = { config:{ title, time: dt ? new Date(dt).toLocaleString() : 'Not scheduled', map, entry:'25', perkill:'12', prize:'500', status:'upcoming', slotsCount:n, startAt }, room:{id:'',pass:''}, slots };
+            matchesData[id] = { config:{ title, time: dt ? new Date(dt).toLocaleString() : 'Not scheduled', map, gameType, entry:'25', perkill:'12', prize:'500', status:'upcoming', slotsCount:n, startAt }, room:{id:'',pass:''}, slots };
             saveAndSyncData();
             document.getElementById('newMatchTitle').value = '';
             alert('Navo match add thayo!');
@@ -414,8 +428,8 @@
             const k = document.getElementById('adminMatchSelector').value, m = matchesData[k];
             if(!m) return;
             const n = Math.max(1, Math.min(100, parseInt(document.getElementById('adminSlotCount').value) || 48));
-            const next = {}; for(let i=1; i<=n; i++) next['slot_'+i] = m.slots?.['slot_'+i] || { id:i, status:'free', player:null };
-            m.slots = next; m.config.slotsCount = n; m.config.status = document.getElementById('adminMatchStatus').value;
+            m.slots = generateBrSlots(m.config.gameType || 'squad', n);
+            m.config.slotsCount = n; m.config.status = document.getElementById('adminMatchStatus').value;
             const dt = document.getElementById('adminStartAt').value;
             m.config.startAt = dt ? new Date(dt).toISOString() : '';
             if(dt){ m.config.time = new Date(dt).toLocaleString(); document.getElementById('adminMatchTime').value = m.config.time; }
@@ -446,50 +460,89 @@
          const grid = document.getElementById(gridId);
          if(!grid || !slotsData) return;
          grid.innerHTML = '';
-         Object.keys(slotsData).forEach(key => {
-             const slot = slotsData[key];
-             const card = document.createElement('div');
-             let statusClass = 'slot-free', statusText = 'Free';
-             if (slot.status === 'pending') { statusClass = 'slot-pending'; statusText = 'Pending'; }
-             else if (slot.status === 'booked') { statusClass = 'slot-booked'; statusText = 'Booked'; }
+         
+         if(type === 'cs') {
+             let csGrid = document.createElement('div');
+             csGrid.className = 'grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2.5 w-full';
+             Object.keys(slotsData).forEach(key => {
+                 const slot = slotsData[key];
+                 const card = document.createElement('div');
+                 let statusClass = 'slot-free', statusText = 'Free';
+                 if (slot.status === 'pending') { statusClass = 'slot-pending'; statusText = 'Pending'; }
+                 else if (slot.status === 'booked') { statusClass = 'slot-booked'; statusText = 'Booked'; }
 
-             card.className = `p-2.5 rounded-xl flex flex-col justify-between cursor-pointer transition select-none ${statusClass}`;
-             card.onclick = () => onSlotClick(matchKey, slot, type);
-             card.innerHTML = `
-                 <div class="flex justify-between items-center text-xs font-bold font-mono">
-                     <span>#${slot.id}</span>
-                     <span class="text-[8px] px-1 py-0.5 rounded bg-black/40">${statusText}</span>
-                 </div>
-                 <div class="text-center py-1.5"><div class="font-bold text-[11px] truncate text-white">${slot.player ? slot.player.ign : 'Empty'}</div></div>
-             `;
-             grid.appendChild(card);
-         });
+                 card.className = `p-2.5 rounded-xl flex flex-col justify-between cursor-pointer transition select-none ${statusClass}`;
+                 card.onclick = () => onSlotClick(matchKey, slot, type);
+                 card.innerHTML = `
+                     <div class="flex justify-between items-center text-xs font-bold font-mono">
+                         <span>#${slot.id}</span>
+                         <span class="text-[8px] px-1 py-0.5 rounded bg-black/40">${statusText}</span>
+                     </div>
+                     <div class="text-center py-1.5"><div class="font-bold text-[11px] truncate text-white">${slot.player ? slot.player.ign : 'Empty'}</div></div>
+                 `;
+                 csGrid.appendChild(card);
+             });
+             grid.appendChild(csGrid);
+         } else {
+             let brContainer = document.createElement('div');
+             brContainer.className = 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 w-full';
+             
+             Object.keys(slotsData).forEach(teamKey => {
+                 const team = slotsData[teamKey];
+                 if(!team || !team.players) return;
+                 const teamDiv = document.createElement('div');
+                 teamDiv.className = 'team-box bg-zincdark/80 border border-zincborder rounded-xl p-3';
+                 
+                 let teamHeader = `<div class="text-[11px] font-bold text-yellow-400 mb-2 border-b border-zincborder pb-1 flex justify-between items-center"><span>TEAM #${team.teamNum}</span></div>`;
+                 let playersHtml = '<div class="space-y-2">';
+                 
+                 team.players.forEach(slot => {
+                     let statusClass = 'slot-free', statusText = 'Free';
+                     if (slot.status === 'pending') { statusClass = 'slot-pending'; statusText = 'Pending'; }
+                     else if (slot.status === 'booked') { statusClass = 'slot-booked'; statusText = 'Booked'; }
+
+                     playersHtml += `
+                         <div onclick="onSlotClick('${matchKey}', ${JSON.stringify(slot).replace(/"/g, '&quot;')}, 'br')" class="p-2 rounded-lg flex justify-between items-center cursor-pointer transition ${statusClass}">
+                             <span class="text-xs font-mono font-bold">#${slot.id}</span>
+                             <span class="text-xs font-bold truncate max-w-[120px] text-white">${slot.player ? slot.player.ign : 'Empty'}</span>
+                             <span class="text-[9px] px-1.5 py-0.5 rounded bg-black/40 font-bold">${statusText}</span>
+                         </div>
+                     `;
+                 });
+                 playersHtml += '</div>';
+                 teamDiv.innerHTML = teamHeader + playersHtml;
+                 brContainer.appendChild(teamDiv);
+             });
+             grid.appendChild(brContainer);
+         }
      };
 
      window.renderMatchCards = function(){
        const root=document.getElementById('dynamicMatches'); if(!root)return;
        root.innerHTML='';
        Object.entries(matchesData).forEach(([key,m],idx)=>{
-         const c=m.config||{}, st=statusOf(m), slots=m.slots||{}, count=Object.keys(slots).length;
+         const c=m.config||{}, st=statusOf(m), slots=m.slots||{}, count=c.slotsCount||48;
          const colors={live:'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',upcoming:'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',completed:'bg-red-500/20 text-red-400 border-red-500/30'};
          const label={live:'● LIVE MATCH',upcoming:'⏰ UPCOMING MATCH',completed:'✓ COMPLETED'};
+         const gTypeLabel = (c.gameType||'squad').toUpperCase();
          const card=document.createElement('div');
          card.className='bg-zincpanel border border-zincborder rounded-2xl p-5 shadow-lg';
          card.innerHTML=`
           <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-zincborder pb-4 mb-3">
-           <div><div class="flex items-center gap-2 flex-wrap"><span class="px-2.5 py-0.5 ${colors[st]} text-xs font-bold rounded border">${label[st]}</span><span class="text-xs text-gray-400 font-bold">MATCH #${String(idx+1).padStart(2,'0')}</span></div>
+           <div><div class="flex items-center gap-2 flex-wrap"><span class="px-2.5 py-0.5 ${colors[st]} text-xs font-bold rounded border">${label[st]}</span><span class="px-2 py-0.5 bg-blue-500/20 text-blue-400 border border-blue-500/30 text-xs font-bold rounded">${gTypeLabel}</span><span class="text-xs text-gray-400 font-bold">MATCH #${String(idx+1).padStart(2,'0')}</span></div>
            <h2 class="font-esports text-2xl font-extrabold text-white mt-1">${esc(c.title||'Free Fire Match')}</h2>
            <p class="text-xs text-gray-400 mt-1"><i class="fa-solid fa-clock text-yellow-400 me-1"></i> Time: ${esc(c.time||'Not set')} | <i class="fa-solid fa-map-location text-blue-400 me-1"></i> Map: ${esc(c.map||'Bermuda')}</p></div>
            <div class="flex gap-2 sm:gap-3 text-center flex-wrap items-stretch"><div class="bg-indigo-950/60 p-2.5 rounded-xl border border-indigo-500/40 min-w-[150px]"><span class="text-[9px] text-indigo-200 uppercase block">⏳ Match Countdown</span><span id="${key}_countdown" class="font-bold text-sm text-white block mt-1">${c.startAt ? 'Calculating…' : 'Date / time not set'}</span><span id="${key}_matchdate" class="text-[10px] text-gray-300 block mt-1">${c.startAt ? esc(new Date(c.startAt).toLocaleString()) : 'Admin: set match date & time'}</span></div><div class="bg-zincdark p-2.5 rounded-xl border border-zincborder min-w-[75px]"><span class="text-[9px] text-gray-400 uppercase block">Entry Fee</span><span class="font-esports text-lg font-bold text-yellow-400">₹${esc(c.entry||'25')}</span></div>
            <div class="bg-zincdark p-2.5 rounded-xl border border-zincborder min-w-[75px]"><span class="text-[9px] text-gray-400 uppercase block">Per Kill</span><span class="font-esports text-lg font-bold text-sky-400">₹${esc(c.perkill||'12')}</span></div>
            <div class="bg-zincdark p-2.5 rounded-xl border border-zincborder min-w-[75px]"><span class="text-[9px] text-gray-400 uppercase block">Prize Pool</span><span class="font-esports text-lg font-bold text-emerald-400">₹${esc(c.prize||'500')}</span></div></div></div>
           <div class="flex flex-wrap items-center gap-2 mb-4 text-xs font-bold"><span class="text-gray-400">Winners:</span><span class="bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 px-2.5 py-1 rounded-lg">🥇 1st: ₹${esc(c.p1||'250')}</span><span class="bg-gray-400/10 border border-gray-400/30 text-gray-300 px-2.5 py-1 rounded-lg">🥈 2nd: ₹${esc(c.p2||'150')}</span><span class="bg-amber-700/10 border border-amber-600/30 text-amber-400 px-2.5 py-1 rounded-lg">🥉 3rd: ₹${esc(c.p3||'100')}</span></div>
-          <div class="flex justify-between items-center mb-3"><span class="text-xs font-bold text-gray-300"><i class="fa-solid fa-th text-yellow-400 me-1"></i> Slots: ${count}</span><button onclick="toggleSlotsBox('${key}_dynamic_slots')" class="px-4 py-2 bg-yellow-500 text-black font-extrabold text-xs rounded-xl">View / Book Slots (${count})</button></div>
-          <div id="${key}_dynamic_slots" class="mt-4 pt-4 border-t border-zincborder/60 hidden"><div class="text-xs text-gray-400 flex gap-3 font-semibold mb-3 justify-end"><span>🟢 Free</span><span>🟡 Pending</span><span>🔴 Booked</span></div><div id="${key}_dynamic_grid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2.5"></div></div>`;
+          <div class="flex justify-between items-center mb-3"><span class="text-xs font-bold text-gray-300"><i class="fa-solid fa-th text-yellow-400 me-1"></i> Total Slots: ${count}</span><button onclick="toggleSlotsBox('${key}_dynamic_slots')" class="px-4 py-2 bg-yellow-500 text-black font-extrabold text-xs rounded-xl">View / Book Slots (${count})</button></div>
+          <div id="${key}_dynamic_slots" class="mt-4 pt-4 border-t border-zincborder/60 hidden"><div class="text-xs text-gray-400 flex gap-3 font-semibold mb-3 justify-end"><span>🟢 Free</span><span>🟡 Pending</span><span>🔴 Booked</span></div><div id="${key}_dynamic_grid" class="w-full"></div></div>`;
          root.appendChild(card);
          window.renderSlots(key+'_dynamic_grid',key,slots,'br');
        });
        updateMatchCountdowns();
+       renderAdminSelector();
      };
 
      window.updateMatchCountdowns = function(){
@@ -509,7 +562,12 @@
      
      window.renderAdminSelector = function() {
          const sel = document.getElementById('adminMatchSelector');
-         if(sel) { sel.innerHTML = Object.keys(matchesData).map(k=>`<option value="${k}">${matchesData[k].config?.title || k}</option>`).join(''); }
+         if(sel) { 
+             sel.innerHTML = Object.keys(matchesData).map(k=>`<option value="${k}">${matchesData[k].config?.title || k}</option>`).join('');
+             if(!sel.value && Object.keys(matchesData).length > 0) {
+                 sel.value = Object.keys(matchesData)[0];
+             }
+         }
      };
 
      window.onAdminMatchSelectChange = function() {
@@ -542,7 +600,7 @@
              set('adminStartAt', '');
          }
 
-         set('adminSlotCount', Object.keys(matchesData[selectedMatch].slots || {}).length);
+         set('adminSlotCount', cfg.slotsCount || 48);
          set('adminMatchStatus', statusOf(matchesData[selectedMatch]));
      };
 
@@ -584,22 +642,37 @@
          let count = 0;
          Object.keys(matchesData).forEach(matchKey => {
              const slotsData = matchesData[matchKey].slots || {};
-             Object.keys(slotsData).forEach(key => {
-                 const slot = slotsData[key];
-                 if (slot.status === 'pending' && slot.player) {
-                     count++;
-                     const item = document.createElement('div');
-                     item.className = 'bg-zincdark border border-zincborder p-3 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center text-xs gap-2';
-                     item.innerHTML = `<div><span class="font-bold text-yellow-400">[BR] Slot #${slot.id}</span> | <span class="text-white font-bold">${slot.player.ign}</span> (UID: ${slot.player.uid})<br><span class="text-gray-300">Mobile: <strong class="text-yellow-400">${slot.player.phone||'N/A'}</strong></span> | <span class="text-gray-400">UTR: <strong class="text-emerald-400">${slot.player.utr}</strong></span></div><div class="flex gap-2"><button onclick="approveBrSlot('${matchKey}', ${slot.id})" class="px-3 py-1 bg-emerald-500 text-black font-bold rounded-lg">Approve</button><button onclick="rejectBrSlot('${matchKey}', ${slot.id})" class="px-3 py-1 bg-red-500 text-white font-bold rounded-lg">Reject</button></div>`;
-                     list.appendChild(item);
+             Object.values(slotsData).forEach(team => {
+                 if(team && team.players) {
+                     team.players.forEach(slot => {
+                         if (slot.status === 'pending' && slot.player) {
+                             count++;
+                             const item = document.createElement('div');
+                             item.className = 'bg-zincdark border border-zincborder p-3 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center text-xs gap-2';
+                             item.innerHTML = `<div><span class="font-bold text-yellow-400">[BR] Slot #${slot.id}</span> | <span class="text-white font-bold">${slot.player.ign}</span> (UID: ${slot.player.uid})<br><span class="text-gray-300">Mobile: <strong class="text-yellow-400">${slot.player.phone||'N/A'}</strong></span> | <span class="text-gray-400">UTR: <strong class="text-emerald-400">${slot.player.utr}</strong></span></div><div class="flex gap-2"><button onclick="approveBrSlot('${matchKey}', ${slot.id})" class="px-3 py-1 bg-emerald-500 text-black font-bold rounded-lg">Approve</button><button onclick="rejectBrSlot('${matchKey}', ${slot.id})" class="px-3 py-1 bg-red-500 text-white font-bold rounded-lg">Reject</button></div>`;
+                             list.appendChild(item);
+                         }
+                     });
                  }
              });
          });
          if (count === 0) list.innerHTML = '<p class="text-xs text-gray-400">Koi pending booking nathi.</p>';
      };
 
-     window.approveBrSlot = function(k, id) { matchesData[k].slots[`slot_${id}`].status = 'booked'; saveAndSyncData(); };
-     window.rejectBrSlot = function(k, id) { matchesData[k].slots[`slot_${id}`] = { id, status: 'free', player: null }; saveAndSyncData(); };
+     window.approveBrSlot = function(k, id) { 
+         const slots = matchesData[k].slots;
+         Object.values(slots).forEach(team => {
+             if(team && team.players) team.players.forEach(s => { if(s.id === id) s.status = 'booked'; });
+         });
+         saveAndSyncData(); 
+     };
+     window.rejectBrSlot = function(k, id) { 
+         const slots = matchesData[k].slots;
+         Object.values(slots).forEach(team => {
+             if(team && team.players) team.players.forEach(s => { if(s.id === id) { s.status = 'free'; s.player = null; } });
+         });
+         saveAndSyncData(); 
+     };
 
      window.saveAndSyncData = function() {
          localStorage.setItem('zinc_multimatches', JSON.stringify(matchesData));
@@ -608,14 +681,22 @@
      };
 
      window.onSlotClick = function(matchKey, slot, type) {
+         if (typeof slot === 'string') slot = JSON.parse(slot);
          if (slot.status === 'free') {
              document.getElementById('selectedMatchKey').value = matchKey;
              document.getElementById('selectedSlotId').value = slot.id;
              document.getElementById('selectedSlotNum').innerText = slot.id;
              document.getElementById('selectedMatchType').value = type || 'br';
-             let amount = type === 'cs' ? (JSON.parse(localStorage.getItem('zinc_cs_entry_fees_v1')||'{}')[matchKey]||50) : (matchesData[matchKey]?.config?.entry || 25);
              
-             // Dynamic Payment Auto-Fill Fix
+             let baseEntry = Number(matchesData[matchKey]?.config?.entry || 25);
+             let gameType = matchesData[matchKey]?.config?.gameType || 'squad';
+             let multiplier = 1;
+             if(type === 'br') {
+                 if(gameType === 'duo') multiplier = 2;
+                 if(gameType === 'squad') multiplier = 4;
+             }
+             let amount = type === 'cs' ? (JSON.parse(localStorage.getItem('zinc_cs_entry_fees_v1')||'{}')[matchKey]||50) : (baseEntry * multiplier);
+             
              document.getElementById('dynamicPaymentAmount').innerText = amount;
              const upiData = `upi://pay?pa=849095070@axl&pn=ZINC%20Esports&am=${amount}&cu=INR`;
              document.getElementById('dynamicPaymentQR').src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiData)}`;
@@ -628,14 +709,14 @@
      window.submitRealtimeBooking = function(e) {
          e.preventDefault();
          const matchKey = document.getElementById('selectedMatchKey').value;
-         const slotId = document.getElementById('selectedSlotId').value;
+         const slotId = parseInt(document.getElementById('selectedSlotId').value);
          const type = document.getElementById('selectedMatchType').value || 'br';
          const ign = document.getElementById('playerIgn').value.trim();
          const uid = document.getElementById('playerUid').value.trim();
          const phone = document.getElementById('playerPhone').value.trim();
          const utr = document.getElementById('playerUtr').value.trim();
 
-         const playerData = { id: parseInt(slotId), status: 'pending', player: { ign, uid, phone, utr, timestamp: Date.now() }};
+         const playerData = { id: slotId, status: 'pending', player: { ign, uid, phone, utr, timestamp: Date.now() }};
          let matchName = 'BR Match';
 
          if(type === 'cs') {
@@ -646,7 +727,10 @@
              matchName = `CS ${matchKey.toUpperCase()} Match`;
              if(window.renderCSSlots) window.renderCSSlots();
          } else {
-             matchesData[matchKey].slots[`slot_${slotId}`] = playerData;
+             const slots = matchesData[matchKey].slots;
+             Object.values(slots).forEach(team => {
+                 if(team && team.players) team.players.forEach(s => { if(s.id === slotId) { s.status = 'pending'; s.player = playerData.player; } });
+             });
              matchName = matchesData[matchKey]?.config?.title || 'BR Match';
              saveAndSyncData();
          }
@@ -666,9 +750,13 @@
          let foundRooms = [];
          Object.keys(matchesData).forEach(matchKey => {
              const slotsData = matchesData[matchKey].slots || {};
-             Object.values(slotsData).forEach(slot => {
-                 if (slot.status === 'booked' && slot.player && slot.player.uid === inputUid) {
-                     foundRooms.push({ name: matchesData[matchKey].config.title, room: matchesData[matchKey].room });
+             Object.values(slotsData).forEach(team => {
+                 if(team && team.players) {
+                     team.players.forEach(slot => {
+                         if (slot.status === 'booked' && slot.player && slot.player.uid === inputUid) {
+                             foundRooms.push({ name: matchesData[matchKey].config.title, room: matchesData[matchKey].room });
+                         }
+                     });
                  }
              });
          });
@@ -744,7 +832,7 @@
                     </div>
                     <p class="text-xs text-gray-400 mb-4">Entry Fee: <strong class="text-yellow-400">₹${fees[currentCs]}</strong></p>
                     <div class="text-xs text-gray-300 font-bold mb-2">Select Slot to Book (${modes[currentCs]} Slots):</div>
-                    <div id="cs_grid_${currentCs}" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2.5 mb-4"></div>
+                    <div id="cs_grid_${currentCs}" class="w-full"></div>
                 </div>
             `;
             if(window.renderSlots) window.renderSlots(`cs_grid_${currentCs}`, currentCs, modeSlots, 'cs');
