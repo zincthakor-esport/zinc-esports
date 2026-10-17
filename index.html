@@ -164,7 +164,7 @@
                             <select id="newMatchType" class="w-full bg-zincpanel border border-zincborder p-2.5 rounded-xl text-xs text-white font-bold">
                                 <option value="solo">Solo (1 Player per slot)</option>
                                 <option value="duo">Duo (2 Players per slot)</option>
-                                <option value="squad">Squad (4 Players per slot)</option>
+                                <option value="squad" selected>Squad (4 Players per slot)</option>
                             </select>
                         </div>
                         <div><label class="block text-[11px] text-gray-400 mb-1 font-bold">Total Slots Count</label><input id="newMatchSlots" type="number" min="1" max="100" value="48" class="w-full bg-zincpanel border border-zincborder p-2.5 rounded-xl text-xs text-white"></div>
@@ -234,7 +234,7 @@
             <button onclick="closeBookingModal()" class="absolute top-4 right-4 text-gray-400"><i class="fa-solid fa-xmark text-lg"></i></button>
             <h3 class="font-esports text-2xl font-bold text-white mb-2"><span id="bookingMatchTag">Match #1</span> - Slot #<span id="selectedSlotNum"></span></h3>
             
-            <!-- Secure QR Code & Copy UPI ID Box (No Intent Error) -->
+            <!-- Secure QR Code & Copy UPI ID Box -->
             <div class="bg-zincdark p-4 border border-yellow-500/30 rounded-xl mb-4 text-center">
                 <p class="text-xs text-yellow-400 font-bold mb-2"><i class="fa-solid fa-qrcode me-1"></i> Scan QR or Copy UPI ID to Pay:</p>
                 <div class="flex justify-center mb-3">
@@ -254,7 +254,7 @@
                 <input type="hidden" id="selectedSlotId">
                 <input type="hidden" id="selectedMatchType" value="br">
                 
-                <!-- Dynamic Players Inputs Container -->
+                <!-- Dynamic Players Inputs Container (Solo/Duo/Squad support) -->
                 <div id="dynamicPlayersFormContainer" class="space-y-3"></div>
 
                 <div><label class="block text-xs font-bold text-gray-300 mb-1">Mobile / WhatsApp Number *</label><input type="tel" id="playerPhone" maxlength="10" minlength="10" required placeholder="10 Digit Mobile Number" class="w-full bg-zincdark border border-zincborder rounded-xl p-2.5 text-sm text-white font-mono focus:outline-none focus:border-yellow-500"></div>
@@ -296,7 +296,7 @@
             <h3 class="font-esports text-2xl font-bold text-white mb-2"><i class="fa-solid fa-key text-yellow-400 me-2"></i>Get Room ID</h3>
             <input type="text" id="checkUidInput" placeholder="Enter UID..." class="w-full bg-zincdark border border-zincborder rounded-xl p-3 text-sm text-white font-mono focus:outline-none focus:border-yellow-500 mb-3">
             <button onclick="verifyPlayerAndShowRoom()" class="w-full py-3 bg-yellow-500 text-black font-extrabold text-sm rounded-xl hover:bg-yellow-400 transition">Verify & View Room ID</button>
-            <div id="secretRoomBox" class="bg-emerald-500/10 border border-emerald-500/40 p-4 rounded-xl hidden"></div>
+            <div id="secretRoomBox" class="bg-emerald-500/10 border border-emerald-500/40 p-4 rounded-xl hidden mt-3"></div>
         </div>
     </div>
 
@@ -305,7 +305,7 @@
         const i18nData = {
             gu: { btn_support: "સપોર્ટ", btn_room: "રૂમ આઈડી", btn_admin: "એડમિન", nav_br: "બેટલ રોયલ મેચ", nav_cs: "CS મોડ (1v1 / 6v6)", lbl_free: "ફ્રી", lbl_pending: "પેન્ડિંગ", lbl_booked: "બુકડ" },
             en: { btn_support: "Support", btn_room: "Room ID", btn_admin: "Admin", nav_br: "Battle Royale Matches", nav_cs: "CS Mode (1v1 / 6v6)", lbl_free: "Free", lbl_pending: "Pending", lbl_booked: "Booked" },
-            hi: { btn_support: "સપોર્ટ", btn_room: "रूम आईडी", btn_admin: "एडमिन", nav_br: "बैटल रॉयल मैच", nav_cs: "CS Mode (1v1 / 6v6)", lbl_free: "ફ્રી", lbl_pending: "પ્રોસેસिंग", lbl_booked: "બુક" }
+            hi: { btn_support: "સપોર્ટ", btn_room: "रूम आईडी", btn_admin: "एडमिन", nav_br: "બેટલ રોયલ મેચ", nav_cs: "CS Mode (1v1 / 6v6)", lbl_free: "ફ્રી", lbl_pending: "પ્રોસેસિંગ", lbl_booked: "બુક" }
         };
 
         function changeLanguage(lang) {
@@ -506,14 +506,14 @@
                  let teamHeader = `<div class="text-[11px] font-bold text-yellow-400 mb-2 border-b border-zincborder pb-1 flex justify-between items-center"><span>TEAM #${team.teamNum}</span></div>`;
                  let playersHtml = '<div class="space-y-2">';
                  
-                 team.players.forEach(slot => {
+                 team.players.forEach((slot, idx) => {
                      let statusClass = 'slot-free', statusText = 'Free';
                      if (slot.status === 'pending') { statusClass = 'slot-pending'; statusText = 'Pending'; }
                      else if (slot.status === 'booked') { statusClass = 'slot-booked'; statusText = 'Booked'; }
 
                      let displayName = 'Empty';
                      if(slot.player) {
-                         displayName = slot.player.ign || slot.player.p1_ign || 'Booked';
+                         displayName = slot.player.ign || slot.player[`p${idx+1}_ign`] || slot.player.p1_ign || 'Booked';
                      }
 
                      playersHtml += `
@@ -661,24 +661,25 @@
              const slotsData = matchesData[matchKey].slots || {};
              Object.values(slotsData).forEach(team => {
                  if(team && team.players) {
-                     team.players.forEach(slot => {
-                         if (slot.status === 'pending' && slot.player) {
-                             count++;
-                             const p = slot.player;
-                             let detailsHtml = '';
-                             if(p.p1_ign) {
-                                 detailsHtml = `<b>P1:</b> ${p.p1_ign} (${p.p1_uid})<br><b>P2:</b> ${p.p2_ign} (${p.p2_uid})`;
-                                 if(p.p3_ign) detailsHtml += `<br><b>P3:</b> ${p.p3_ign} (${p.p3_uid})<br><b>P4:</b> ${p.p4_ign} (${p.p4_uid})`;
+                     let hasPending = team.players.some(s => s.status === 'pending');
+                     if (hasPending) {
+                         count++;
+                         let pendingPlayer = team.players.find(s => s.player)?.player;
+                         let detailsHtml = '';
+                         if(pendingPlayer) {
+                             if(pendingPlayer.p1_ign) {
+                                 detailsHtml = `<b>P1:</b> ${pendingPlayer.p1_ign} (${pendingPlayer.p1_uid})<br><b>P2:</b> ${pendingPlayer.p2_ign || 'Player 2'} (${pendingPlayer.p2_uid || 'N/A'})`;
+                                 if(pendingPlayer.p3_ign) detailsHtml += `<br><b>P3:</b> ${pendingPlayer.p3_ign} (${pendingPlayer.p3_uid})<br><b>P4:</b> ${pendingPlayer.p4_ign} (${pendingPlayer.p4_uid})`;
                              } else {
-                                 detailsHtml = `<b>IGN:</b> ${p.ign || 'N/A'} | <b>UID:</b> ${p.uid || 'N/A'}`;
+                                 detailsHtml = `<b>IGN:</b> ${pendingPlayer.ign || 'N/A'} | <b>UID:</b> ${pendingPlayer.uid || 'N/A'}`;
                              }
-
-                             const item = document.createElement('div');
-                             item.className = 'bg-zincdark border border-zincborder p-3 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center text-xs gap-2';
-                             item.innerHTML = `<div><span class="font-bold text-yellow-400">[BR] Slot #${slot.id} (${matchesData[matchKey]?.config?.title || matchKey})</span><br>${detailsHtml}<br><span class="text-gray-300">Mobile: <strong class="text-yellow-400">${p.phone||'N/A'}</strong></span> | <span class="text-gray-400">UTR: <strong class="text-emerald-400">${p.utr||'N/A'}</strong></span></div><div class="flex gap-2"><button onclick="approveBrSlot('${matchKey}', ${slot.id})" class="px-3 py-1 bg-emerald-500 text-black font-bold rounded-lg hover:bg-emerald-400 transition">Approve</button><button onclick="rejectBrSlot('${matchKey}', ${slot.id})" class="px-3 py-1 bg-red-500 text-white font-bold rounded-lg hover:bg-red-400 transition">Reject</button></div>`;
-                             list.appendChild(item);
                          }
-                     });
+
+                         const item = document.createElement('div');
+                         item.className = 'bg-zincdark border border-zincborder p-3 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center text-xs gap-2';
+                         item.innerHTML = `<div><span class="font-bold text-yellow-400">[BR] Team #${team.teamNum} (${matchesData[matchKey]?.config?.title || matchKey})</span><br>${detailsHtml}<br><span class="text-gray-300">Mobile: <strong class="text-yellow-400">${pendingPlayer?.phone||'N/A'}</strong></span> | <span class="text-gray-400">UTR: <strong class="text-emerald-400">${pendingPlayer?.utr||'N/A'}</strong></span></div><div class="flex gap-2"><button onclick="approveBrTeam('${matchKey}', ${team.teamNum})" class="px-3 py-1 bg-emerald-500 text-black font-bold rounded-lg hover:bg-emerald-400 transition">Approve Team</button><button onclick="rejectBrTeam('${matchKey}', ${team.teamNum})" class="px-3 py-1 bg-red-500 text-white font-bold rounded-lg hover:bg-red-400 transition">Reject</button></div>`;
+                         list.appendChild(item);
+                     }
                  }
              });
          });
@@ -710,17 +711,33 @@
          if (count === 0) list.innerHTML = '<p class="text-xs text-gray-400">Koi pending booking nathi.</p>';
      };
 
-     window.approveBrSlot = function(k, id) { 
+     window.approveBrTeam = function(k, teamNum) { 
          const slots = matchesData[k].slots;
          Object.values(slots).forEach(team => {
-             if(team && team.players) team.players.forEach(s => { if(s.id === id) s.status = 'booked'; });
+             if(team && team.teamNum === teamNum && team.players) {
+                 let pendingPlayer = team.players.find(s => s.player)?.player || null;
+                 team.players.forEach((s, idx) => {
+                     s.status = 'booked';
+                     if (!s.player && pendingPlayer) {
+                         s.player = {
+                             ign: pendingPlayer[`p${idx+1}_ign`] || pendingPlayer.ign || `${pendingPlayer.p1_ign || 'Player'} #${idx+1}`,
+                             uid: pendingPlayer[`p${idx+1}_uid`] || pendingPlayer.uid || 'N/A',
+                             phone: pendingPlayer.phone,
+                             utr: pendingPlayer.utr
+                         };
+                     }
+                 });
+             }
          });
          saveAndSyncData(); 
      };
-     window.rejectBrSlot = function(k, id) { 
+
+     window.rejectBrTeam = function(k, teamNum) { 
          const slots = matchesData[k].slots;
          Object.values(slots).forEach(team => {
-             if(team && team.players) team.players.forEach(s => { if(s.id === id) { s.status = 'free'; s.player = null; } });
+             if(team && team.teamNum === teamNum && team.players) {
+                 team.players.forEach(s => { s.status = 'free'; s.player = null; });
+             }
          });
          saveAndSyncData(); 
      };
@@ -776,7 +793,6 @@
              
              document.getElementById('bookingMatchTag').innerText = type === 'cs' ? `CS ${matchKey.toUpperCase()} Match` : (matchConfig.title || 'BR Match');
 
-             // Generate Dynamic Inputs based on Game Type
              let formContainer = document.getElementById('dynamicPlayersFormContainer');
              formContainer.innerHTML = '';
              let numPlayers = 1;
@@ -835,7 +851,12 @@
          } else {
              const slots = matchesData[matchKey].slots;
              Object.values(slots).forEach(team => {
-                 if(team && team.players) team.players.forEach(s => { if(s.id === slotId) { s.status = 'pending'; s.player = playerData.player; } });
+                 if(team && team.players) {
+                     let found = team.players.some(s => s.id === slotId);
+                     if(found) {
+                         team.players.forEach(s => { s.status = 'pending'; s.player = playerData.player; });
+                     }
+                 }
              });
              matchName = matchConfig.title || 'BR Match';
              saveAndSyncData();
@@ -843,7 +864,7 @@
 
          let hist = [];
          try { hist = JSON.parse(localStorage.getItem('zinc_demo_payment_history_v1') || '[]'); } catch(e){}
-         hist.push({ ref: utr, match: matchName, purpose: `Slot #${slotId} Entry Fee`, amount: Number(document.getElementById('dynamicPaymentAmount').innerText), status: 'Pending / Not verified', time: Date.now() });
+         hist.push({ ref: utr, match: matchName, purpose: `Team Booking Entry Fee`, amount: Number(document.getElementById('dynamicPaymentAmount').innerText), status: 'Pending / Not verified', time: Date.now() });
          localStorage.setItem('zinc_demo_payment_history_v1', JSON.stringify(hist));
 
          closeBookingModal();
