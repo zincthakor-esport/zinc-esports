@@ -234,19 +234,19 @@
             <button onclick="closeBookingModal()" class="absolute top-4 right-4 text-gray-400"><i class="fa-solid fa-xmark text-lg"></i></button>
             <h3 class="font-esports text-2xl font-bold text-white mb-2"><span id="bookingMatchTag">Match #1</span> - Slot #<span id="selectedSlotNum"></span></h3>
             
+            <!-- Secure QR Code & Copy UPI ID Box (No Intent Error) -->
             <div class="bg-zincdark p-4 border border-yellow-500/30 rounded-xl mb-4 text-center">
-                <p class="text-xs text-yellow-400 font-bold mb-2">QR Code scan karo ke UPI ID par payment karo:</p>
+                <p class="text-xs text-yellow-400 font-bold mb-2"><i class="fa-solid fa-qrcode me-1"></i> Scan QR or Copy UPI ID to Pay:</p>
                 <div class="flex justify-center mb-3">
                     <img id="dynamicPaymentQR" src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=upi%3A%2F%2Fpay%3Fpa%3D849095070%40axl%26pn%3DZINC%20Esports%26am%3D25%26cu%3DINR" alt="Dynamic UPI Payment QR Code" class="w-48 h-48 object-contain bg-white p-2 rounded-xl border border-yellow-500/40 shadow-lg">
                 </div>
-                <p class="text-sm font-extrabold text-emerald-400 mb-2">Match entry amount: ₹<span id="dynamicPaymentAmount">25</span></p>
-                <div class="grid grid-cols-3 gap-2 mb-3">
-                    <button type="button" onclick="launchZincUPI('gpay')" class="rounded-lg border border-blue-500/40 bg-blue-500/10 p-2 text-xs font-bold text-white"><i class="fa-brands fa-google-pay text-lg block text-blue-300"></i>Google Pay</button>
-                    <button type="button" onclick="launchZincUPI('phonepe')" class="rounded-lg border border-purple-500/40 bg-purple-500/10 p-2 text-xs font-bold text-white"><i class="fa-solid fa-mobile-screen-button text-lg block text-purple-300"></i>PhonePe</button>
-                    <button type="button" onclick="launchZincUPI('paytm')" class="rounded-lg border border-cyan-500/40 bg-cyan-500/10 p-2 text-xs font-bold text-white"><i class="fa-solid fa-wallet text-lg block text-cyan-300"></i>Paytm</button>
+                <p class="text-sm font-extrabold text-emerald-400 mb-3">Match entry amount: ₹<span id="dynamicPaymentAmount">25</span></p>
+                
+                <div class="bg-zincpanel p-2.5 rounded-xl border border-zincborder flex items-center justify-between gap-2">
+                    <span class="font-mono text-xs font-bold text-white select-all">849095070@axl</span>
+                    <button type="button" onclick="copyUpiId()" class="px-3 py-1.5 bg-yellow-500 hover:bg-yellow-400 text-black font-bold text-xs rounded-lg transition"><i class="fa-solid fa-copy me-1"></i> Copy UPI</button>
                 </div>
-                <button type="button" onclick="launchZincUPI('any')" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-lg mb-3"><i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Pay with any UPI app</button>
-                <p class="font-mono text-sm font-bold text-white select-all bg-zincpanel py-1.5 px-3 rounded-lg border border-zincborder inline-block my-1">849095070@axl</p>
+                <p class="text-[10px] text-gray-400 mt-2">💡 Google Pay / PhonePe માં સ્કેન કરીને કે UPI ID પર પેમેન્ટ કર્યા પછી UTR નંબર નીચે નાખો.</p>
             </div>
 
             <form onsubmit="submitRealtimeBooking(event)" class="space-y-3">
@@ -305,7 +305,7 @@
         const i18nData = {
             gu: { btn_support: "સપોર્ટ", btn_room: "રૂમ આઈડી", btn_admin: "એડમિન", nav_br: "બેટલ રોયલ મેચ", nav_cs: "CS મોડ (1v1 / 6v6)", lbl_free: "ફ્રી", lbl_pending: "પેન્ડિંગ", lbl_booked: "બુકડ" },
             en: { btn_support: "Support", btn_room: "Room ID", btn_admin: "Admin", nav_br: "Battle Royale Matches", nav_cs: "CS Mode (1v1 / 6v6)", lbl_free: "Free", lbl_pending: "Pending", lbl_booked: "Booked" },
-            hi: { btn_support: "સપોર્ટ", btn_room: "रूम आईडी", btn_admin: "एडमिन", nav_br: "बैटल रॉयल मैच", nav_cs: "CS Mode (1v1 / 6v6)", lbl_free: "ફ્રી", lbl_pending: "પ્રોસેસિંગ", lbl_booked: "બુક" }
+            hi: { btn_support: "સપોર્ટ", btn_room: "रूम आईडी", btn_admin: "एडमिन", nav_br: "बैटल रॉयल मैच", nav_cs: "CS Mode (1v1 / 6v6)", lbl_free: "ફ્રી", lbl_pending: "પ્રોસેસिंग", lbl_booked: "બુક" }
         };
 
         function changeLanguage(lang) {
@@ -315,6 +315,11 @@
                 if (dictionary[key]) el.innerText = dictionary[key];
             });
             localStorage.setItem('zinc_lang', lang);
+        }
+
+        function copyUpiId() {
+            navigator.clipboard.writeText("849095070@axl");
+            alert("UPI ID Copied: 849095070@axl");
         }
 
         const firebaseConfig = {
@@ -397,7 +402,7 @@
             document.querySelectorAll('.nav-btn').forEach(el => { el.classList.remove('bg-yellow-500', 'text-black'); el.classList.add('bg-zincdark', 'text-gray-300'); });
             document.getElementById(`sec-${tab}`).classList.remove('hidden');
             document.getElementById(`nav-${tab}`)?.classList.add('bg-yellow-500', 'text-black');
-            if(tab === 'admin') { renderAdminSelector(); onAdminMatchSelectChange(); }
+            if(tab === 'admin') { renderAdminSelector(); onAdminMatchSelectChange(); renderAdminPendingList(); }
             if(tab === 'cs' && typeof window.renderCSSlots === 'function') window.renderCSSlots();
         };
 
@@ -473,6 +478,9 @@
                  if (slot.status === 'pending') { statusClass = 'slot-pending'; statusText = 'Pending'; }
                  else if (slot.status === 'booked') { statusClass = 'slot-booked'; statusText = 'Booked'; }
 
+                 let nameToShow = 'Empty';
+                 if(slot.player) nameToShow = slot.player.ign || slot.player.p1_ign || 'Booked';
+
                  card.className = `p-2.5 rounded-xl flex flex-col justify-between cursor-pointer transition select-none ${statusClass}`;
                  card.onclick = () => onSlotClick(matchKey, slot, type);
                  card.innerHTML = `
@@ -480,7 +488,7 @@
                          <span>#${slot.id}</span>
                          <span class="text-[8px] px-1 py-0.5 rounded bg-black/40">${statusText}</span>
                      </div>
-                     <div class="text-center py-1.5"><div class="font-bold text-[11px] truncate text-white">${slot.player ? (slot.player.ign || slot.player.p1_ign || 'Empty') : 'Empty'}</div></div>
+                     <div class="text-center py-1.5"><div class="font-bold text-[11px] truncate text-white">${nameToShow}</div></div>
                  `;
                  csGrid.appendChild(card);
              });
@@ -647,6 +655,8 @@
          if(!list) return;
          list.innerHTML = '';
          let count = 0;
+
+         // 1. Check BR Matches Pending Requests
          Object.keys(matchesData).forEach(matchKey => {
              const slotsData = matchesData[matchKey].slots || {};
              Object.values(slotsData).forEach(team => {
@@ -660,18 +670,43 @@
                                  detailsHtml = `<b>P1:</b> ${p.p1_ign} (${p.p1_uid})<br><b>P2:</b> ${p.p2_ign} (${p.p2_uid})`;
                                  if(p.p3_ign) detailsHtml += `<br><b>P3:</b> ${p.p3_ign} (${p.p3_uid})<br><b>P4:</b> ${p.p4_ign} (${p.p4_uid})`;
                              } else {
-                                 detailsHtml = `<b>IGN:</b> ${p.ign} | <b>UID:</b> ${p.uid}`;
+                                 detailsHtml = `<b>IGN:</b> ${p.ign || 'N/A'} | <b>UID:</b> ${p.uid || 'N/A'}`;
                              }
 
                              const item = document.createElement('div');
                              item.className = 'bg-zincdark border border-zincborder p-3 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center text-xs gap-2';
-                             item.innerHTML = `<div><span class="font-bold text-yellow-400">[BR] Slot #${slot.id}</span><br>${detailsHtml}<br><span class="text-gray-300">Mobile: <strong class="text-yellow-400">${p.phone||'N/A'}</strong></span> | <span class="text-gray-400">UTR: <strong class="text-emerald-400">${p.utr}</strong></span></div><div class="flex gap-2"><button onclick="approveBrSlot('${matchKey}', ${slot.id})" class="px-3 py-1 bg-emerald-500 text-black font-bold rounded-lg">Approve</button><button onclick="rejectBrSlot('${matchKey}', ${slot.id})" class="px-3 py-1 bg-red-500 text-white font-bold rounded-lg">Reject</button></div>`;
+                             item.innerHTML = `<div><span class="font-bold text-yellow-400">[BR] Slot #${slot.id} (${matchesData[matchKey]?.config?.title || matchKey})</span><br>${detailsHtml}<br><span class="text-gray-300">Mobile: <strong class="text-yellow-400">${p.phone||'N/A'}</strong></span> | <span class="text-gray-400">UTR: <strong class="text-emerald-400">${p.utr||'N/A'}</strong></span></div><div class="flex gap-2"><button onclick="approveBrSlot('${matchKey}', ${slot.id})" class="px-3 py-1 bg-emerald-500 text-black font-bold rounded-lg hover:bg-emerald-400 transition">Approve</button><button onclick="rejectBrSlot('${matchKey}', ${slot.id})" class="px-3 py-1 bg-red-500 text-white font-bold rounded-lg hover:bg-red-400 transition">Reject</button></div>`;
                              list.appendChild(item);
                          }
                      });
                  }
              });
          });
+
+         // 2. Check CS Mode Pending Requests
+         let csSlots = {};
+         try { csSlots = JSON.parse(localStorage.getItem('zinc_cs_slots_v1') || '{}'); } catch(e){}
+         Object.keys(csSlots).forEach(modeKey => {
+             Object.values(csSlots[modeKey] || {}).forEach(slotObj => {
+                 if(slotObj && slotObj.status === 'pending' && slotObj.player) {
+                     count++;
+                     const p = slotObj.player;
+                     let detailsHtml = '';
+                     if(p.p1_ign) {
+                         detailsHtml = `<b>P1:</b> ${p.p1_ign} (${p.p1_uid})<br><b>P2:</b> ${p.p2_ign} (${p.p2_uid})`;
+                         if(p.p3_ign) detailsHtml += `<br><b>P3:</b> ${p.p3_ign} (${p.p3_uid})<br><b>P4:</b> ${p.p4_ign} (${p.p4_uid})`;
+                     } else {
+                         detailsHtml = `<b>IGN:</b> ${p.ign || 'N/A'} | <b>UID:</b> ${p.uid || 'N/A'}`;
+                     }
+
+                     const item = document.createElement('div');
+                     item.className = 'bg-zincdark border border-zincborder p-3 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center text-xs gap-2';
+                     item.innerHTML = `<div><span class="font-bold text-red-400">[CS ${modeKey.toUpperCase()}] Slot #${slotObj.id}</span><br>${detailsHtml}<br><span class="text-gray-300">Mobile: <strong class="text-yellow-400">${p.phone||'N/A'}</strong></span> | <span class="text-gray-400">UTR: <strong class="text-emerald-400">${p.utr||'N/A'}</strong></span></div><div class="flex gap-2"><button onclick="approveCsSlot('${modeKey}', ${slotObj.id})" class="px-3 py-1 bg-emerald-500 text-black font-bold rounded-lg hover:bg-emerald-400 transition">Approve</button><button onclick="rejectCsSlot('${modeKey}', ${slotObj.id})" class="px-3 py-1 bg-red-500 text-white font-bold rounded-lg hover:bg-red-400 transition">Reject</button></div>`;
+                     list.appendChild(item);
+                 }
+             });
+         });
+
          if (count === 0) list.innerHTML = '<p class="text-xs text-gray-400">Koi pending booking nathi.</p>';
      };
 
@@ -688,6 +723,27 @@
              if(team && team.players) team.players.forEach(s => { if(s.id === id) { s.status = 'free'; s.player = null; } });
          });
          saveAndSyncData(); 
+     };
+
+     window.approveCsSlot = function(modeKey, slotId) {
+         let csSlots = JSON.parse(localStorage.getItem('zinc_cs_slots_v1') || '{}');
+         if(csSlots[modeKey] && csSlots[modeKey][`slot_${slotId}`]) {
+             csSlots[modeKey][`slot_${slotId}`].status = 'booked';
+             localStorage.setItem('zinc_cs_slots_v1', JSON.stringify(csSlots));
+             if(window.renderCSSlots) window.renderCSSlots();
+             renderAdminPendingList();
+         }
+     };
+
+     window.rejectCsSlot = function(modeKey, slotId) {
+         let csSlots = JSON.parse(localStorage.getItem('zinc_cs_slots_v1') || '{}');
+         if(csSlots[modeKey] && csSlots[modeKey][`slot_${slotId}`]) {
+             csSlots[modeKey][`slot_${slotId}`].status = 'free';
+             csSlots[modeKey][`slot_${slotId}`].player = null;
+             localStorage.setItem('zinc_cs_slots_v1', JSON.stringify(csSlots));
+             if(window.renderCSSlots) window.renderCSSlots();
+             renderAdminPendingList();
+         }
      };
 
      window.saveAndSyncData = function() {
@@ -831,11 +887,6 @@
          saveAndSyncData();
      };
 
-     window.launchZincUPI = function(app) {
-         const amount = document.getElementById('dynamicPaymentAmount').innerText;
-         window.location.href = `upi://pay?pa=849095070@axl&pn=ZINC%20Esports&am=${amount}&cu=INR`;
-     };
-
      window.onload = function() {
          ensureMatchShape();
          renderMatchCards();
@@ -899,7 +950,7 @@
             document.getElementById('adminCsPrizeInput').value = getPrizes()[m] || 100;
         };
         window.saveAdminCsSettings = function() {
-            const m = document.getElementById('adminCsModeSelect'.value);
+            const m = document.getElementById('adminCsModeSelect').value;
             const fee = Number(document.getElementById('adminCsFeeInput').value);
             const prize = Number(document.getElementById('adminCsPrizeInput').value);
             if (!fee) return;
