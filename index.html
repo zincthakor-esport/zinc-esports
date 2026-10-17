@@ -229,7 +229,7 @@
             <div class="bg-zincdark p-4 border border-yellow-500/30 rounded-xl mb-4 text-center">
                 <p class="text-xs text-yellow-400 font-bold mb-2">QR Code scan karo ke UPI ID par payment karo:</p>
                 <div class="flex justify-center mb-3">
-                    <img id="dynamicPaymentQR" src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=upi%3A%2F%2Fpay%3Fpa%3D849095070%40axl%26pn%3DZINC%20Esports" alt="Dynamic UPI Payment QR Code" class="w-48 h-48 object-contain bg-white p-2 rounded-xl border border-yellow-500/40 shadow-lg">
+                    <img id="dynamicPaymentQR" src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=upi%3A%2F%2Fpay%3Fpa%3D849095070%40axl%26pn%3DZINC%20Esports%26am%3D25%26cu%3DINR" alt="Dynamic UPI Payment QR Code" class="w-48 h-48 object-contain bg-white p-2 rounded-xl border border-yellow-500/40 shadow-lg">
                 </div>
                 <p class="text-sm font-extrabold text-emerald-400 mb-2">Match entry amount: ₹<span id="dynamicPaymentAmount">25</span></p>
                 <div class="grid grid-cols-3 gap-2 mb-3">
@@ -295,7 +295,7 @@
         const i18nData = {
             gu: { btn_support: "સપોર્ટ", btn_room: "રૂમ આઈડી", btn_admin: "એડમિન", nav_br: "બેટલ રોયલ મેચ", nav_cs: "CS મોડ (1v1 / 6v6)", lbl_free: "ફ્રી", lbl_pending: "પેન્ડિંગ", lbl_booked: "બુકડ" },
             en: { btn_support: "Support", btn_room: "Room ID", btn_admin: "Admin", nav_br: "Battle Royale Matches", nav_cs: "CS Mode (1v1 / 6v6)", lbl_free: "Free", lbl_pending: "Pending", lbl_booked: "Booked" },
-            hi: { btn_support: "सपोर्ट", btn_room: "रूम आईडी", btn_admin: "एडमिन", nav_br: "बैटल रॉयल मैच", nav_cs: "CS Mode (1v1 / 6v6)", lbl_free: "ફ્રી", lbl_pending: "પ્રોસેસિંગ", lbl_booked: "બુક" }
+            hi: { btn_support: "સપોર્ટ", btn_room: "રૂમ આઈડી", btn_admin: "એડમિન", nav_br: "બેટલ રોયલ મેચ", nav_cs: "CS Mode (1v1 / 6v6)", lbl_free: "ફ્રી", lbl_pending: "પ્રોસેસિંગ", lbl_booked: "બુક" }
         };
 
         function changeLanguage(lang) {
@@ -531,7 +531,6 @@
          set('adminRoomId', room.id || '');
          set('adminRoomPass', room.pass || '');
          
-         // Fix for datetime-local ISO format warning
          if (cfg.startAt) {
              try {
                  const formattedDate = new Date(cfg.startAt).toISOString().slice(0, 16);
@@ -615,7 +614,12 @@
              document.getElementById('selectedSlotNum').innerText = slot.id;
              document.getElementById('selectedMatchType').value = type || 'br';
              let amount = type === 'cs' ? (JSON.parse(localStorage.getItem('zinc_cs_entry_fees_v1')||'{}')[matchKey]||50) : (matchesData[matchKey]?.config?.entry || 25);
+             
+             // Dynamic Payment Auto-Fill Fix
              document.getElementById('dynamicPaymentAmount').innerText = amount;
+             const upiData = `upi://pay?pa=849095070@axl&pn=ZINC%20Esports&am=${amount}&cu=INR`;
+             document.getElementById('dynamicPaymentQR').src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiData)}`;
+             
              document.getElementById('bookingMatchTag').innerText = type === 'cs' ? `CS ${matchKey.toUpperCase()} Match` : (matchesData[matchKey]?.config?.title || 'BR Match');
              openBookingModal();
          } else { alert(`Slot #${slot.id} is already ${slot.status}!`); }
